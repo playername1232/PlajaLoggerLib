@@ -1,0 +1,5 @@
+build_tmp_*/
+build/
+cmake-build-*/
+.vs/
+.idea/
