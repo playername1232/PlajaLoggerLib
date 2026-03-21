@@ -158,22 +158,32 @@ Run:
 
 int main()
 {
-    PlajaLogger::Debug("User created")
-        .AppendValue("id", 42)
-        .AppendValue("name", "Martin")
-        .Write();
+    PlajaLogger::Info("Informacni")
+    .AppendValue("id", 25)
+    .AppendValue("name", "Martin")
+    .Write();
+
+    PlajaLogger::Debug("Debugovaci")
+    .AppendValue("id", 25)
+    .AppendValue("name", "Martin")
+    .Write();
+
+    PlajaLogger::Warning("Warningovaci")
+    .AppendValue("id", 25)
+    .AppendValue("name", "Martin")
+    .Write();
+
+    PlajaLogger::Error("Errorovaci")
+    .AppendValue("id", 25)
+    .AppendValue("name", "Martin")
+    .Write();
 
     return 0;
 }
 ```
 
-Output:
-
-```
-[19.03.2026 22:54] [DEBUG] User created: id=42 | name=Martin
-```
-
----
+## Example Output
+<img src="./docs/logger_colors_example.png" alt="Logger - logging colors example"/>
 
 ## ⚠️ Notes
 
