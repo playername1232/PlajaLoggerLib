@@ -56,6 +56,32 @@ private:
 public:
     class PlajaLoggerQuery
     {
+    private:
+        PlajaLogLevel _logLevel;
+        std::string _message;
+        char _appendSeparator;
+        char _valueHighlighter;
+        std::vector<std::pair<std::string, std::string>> _appends;
+
+        PLAJA_LOGGER_API PlajaLoggerQuery(PlajaLogLevel logLevel, std::string message, char valueHighlighter, char appendSeparator);
+
+        PLAJA_LOGGER_API static const char* GetLogLevelText(PlajaLogLevel logLevel);
+        PLAJA_LOGGER_API static PlajaColor GetLogLevelColor(PlajaLogLevel logLevel);
+
+        PLAJA_LOGGER_API static void ApplyColor(PlajaColor color);
+        PLAJA_LOGGER_API static void PrintColored(PlajaColor color, const std::string& text, bool canUseColors);
+
+        /**
+         * Extracts the value highlighter character to be used in the log query.
+         *
+         * If the provided highlighterOverride character is not null (`'\0'`), it will be used;
+         * otherwise, the default value highlighter for the query will be returned.
+         *
+         * @param highlighterOverride The highlighter character to override the default, or `'\0'` to use the default value highlighter.
+         * @return The character used as the value highlighter for the query.
+         */
+        [[nodiscard]] PLAJA_LOGGER_API char ExtractHighlighter(char highlighterOverride) const;
+
     public:
         /**
          * Appends a key-value pair to the log query.
@@ -65,33 +91,30 @@ public:
          *
          * @param key The key associated with the appended value.
          * @param value The value to append.
+         * @param highlighterOverride Character added in front and after the value. e.g. vH = '"' -> key="myValue"
          * @return A reference to the current query to allow method chaining.
          */
-        template<typename TValue>
-        PlajaLoggerQuery& AppendValue(const std::string& key, const TValue& value)
+        template <typename TValue>
+        [[nodiscard]] PlajaLoggerQuery& AppendValue(const std::string& key, const TValue& value, char highlighterOverride = '\0')
         {
             std::ostringstream oss;
-            oss << value;
+
+            char realHighlighter = ExtractHighlighter(highlighterOverride);
+
+            if (realHighlighter != '\0')
+            {
+                oss << realHighlighter << value << realHighlighter;
+            }
+            else
+            {
+                oss << value;
+            }
 
             _appends.emplace_back(key, oss.str());
             return *this;
         }
 
         PLAJA_LOGGER_API void Write();
-
-    private:
-        PlajaLogLevel _logLevel;
-        std::string _message;
-        char _appendSeparator;
-        std::vector<std::pair<std::string, std::string>> _appends;
-
-        PLAJA_LOGGER_API PlajaLoggerQuery(PlajaLogLevel logLevel, std::string message, char appendSeparator);
-
-        [[nodiscard]] PLAJA_LOGGER_API static const char* GetLogLevelText(PlajaLogLevel logLevel);
-        [[nodiscard]] PLAJA_LOGGER_API static PlajaColor GetLogLevelColor(PlajaLogLevel logLevel);
-
-        PLAJA_LOGGER_API static void ApplyColor(PlajaColor color);
-        PLAJA_LOGGER_API static void PrintColored(PlajaColor color, const std::string& text, bool canUseColors);
 
         friend class PlajaLogger;
     };
@@ -103,7 +126,7 @@ public:
      * @param appendSeparator The separator used between appended key-value pairs.
      * @return A log query that can be extended and later written using Write().
      */
-    PLAJA_LOGGER_API static PlajaLoggerQuery Debug(const std::string& message, char appendSeparator = '|');
+    PLAJA_LOGGER_API static PlajaLoggerQuery Debug(std::string message, char valueHighlighter = '\0', char appendSeparator = '|');
 
     /**
      * Creates a info-level log query.
@@ -112,7 +135,7 @@ public:
      * @param appendSeparator The separator used between appended key-value pairs.
      * @return A log query that can be extended and later written using Write().
      */
-    PLAJA_LOGGER_API static PlajaLoggerQuery Info(const std::string& message, char appendSeparator = '|');
+    PLAJA_LOGGER_API static PlajaLoggerQuery Info(std::string message, char valueHighlighter = '\0', char appendSeparator = '|');
 
     /**
      * Creates a warning-level log query.
@@ -121,7 +144,7 @@ public:
      * @param appendSeparator The separator used between appended key-value pairs.
      * @return A log query that can be extended and later written using Write().
      */
-    PLAJA_LOGGER_API static PlajaLoggerQuery Warning(const std::string& message, char appendSeparator = '|');
+    PLAJA_LOGGER_API static PlajaLoggerQuery Warning(std::string message, char valueHighlighter = '\0', char appendSeparator = '|');
 
     /**
      * Creates a error-level log query.
@@ -130,7 +153,7 @@ public:
      * @param appendSeparator The separator used between appended key-value pairs.
      * @return A log query that can be extended and later written using Write().
      */
-    PLAJA_LOGGER_API static PlajaLoggerQuery Error(const std::string& message, char appendSeparator = '|');
+    PLAJA_LOGGER_API static PlajaLoggerQuery Error(std::string message, char valueHighlighter = '\0', char appendSeparator = '|');
 };
 
 #endif

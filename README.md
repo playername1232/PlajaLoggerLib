@@ -163,19 +163,19 @@ int main()
     .AppendValue("name", "Martin")
     .Write();
 
-    PlajaLogger::Debug("Debugovaci")
+    PlajaLogger::Debug("Debugovaci", '"')
     .AppendValue("id", 25)
     .AppendValue("name", "Martin")
     .Write();
 
-    PlajaLogger::Warning("Warningovaci")
+    PlajaLogger::Warning("Warningovaci", '\'')
     .AppendValue("id", 25)
     .AppendValue("name", "Martin")
     .Write();
 
-    PlajaLogger::Error("Errorovaci")
+    PlajaLogger::Error("Errorovaci", '\\')
     .AppendValue("id", 25)
-    .AppendValue("name", "Martin")
+    .AppendValue("name", "Martin", '"')
     .Write();
 
     return 0;
@@ -183,7 +183,7 @@ int main()
 ```
 
 ## Example Output
-<img src="./docs/logger_colors_example.png" alt="Logger - logging colors example"/>
+<img src="docs/logger_colors_example.png" alt="Logger - logging colors example"/>
 
 ## ⚠️ Notes
 

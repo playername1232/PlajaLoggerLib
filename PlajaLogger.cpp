@@ -39,10 +39,11 @@ namespace
 
 // PlajaLoggerQuery
 
-PlajaLogger::PlajaLoggerQuery::PlajaLoggerQuery(PlajaLogLevel logLevel, std::string message, char appendSeparator)
+PlajaLogger::PlajaLoggerQuery::PlajaLoggerQuery(PlajaLogLevel logLevel, std::string message, const char valueHighlighter, const char appendSeparator)
 {
     _logLevel = logLevel;
     _message = std::move(message);
+    _valueHighlighter = valueHighlighter;
     _appendSeparator = appendSeparator;
 }
 
@@ -165,6 +166,11 @@ void PlajaLogger::PlajaLoggerQuery::PrintColored(PlajaColor color, const std::st
     std::cout.flush();
 }
 
+char PlajaLogger::PlajaLoggerQuery::ExtractHighlighter(char highlighterOverride) const
+{
+    return highlighterOverride != '\0' ? highlighterOverride : _valueHighlighter;
+}
+
 void PlajaLogger::PlajaLoggerQuery::Write()
 {
     const bool canUseColors = GetCachedCanUseConsoleColors();
@@ -221,22 +227,22 @@ void PlajaLogger::PlajaLoggerQuery::Write()
 
 // PlajaLogger
 
-PlajaLogger::PlajaLoggerQuery PlajaLogger::Debug(const std::string& message, char appendSeparator)
+PlajaLogger::PlajaLoggerQuery PlajaLogger::Debug(std::string message, char valueHighlighter, char appendSeparator)
 {
-    return { PlajaLogLevel::Debug, message, appendSeparator };
+    return { PlajaLogLevel::Debug, std::move(message), valueHighlighter, appendSeparator };
 }
 
-PlajaLogger::PlajaLoggerQuery PlajaLogger::Info(const std::string& message, char appendSeparator)
+PlajaLogger::PlajaLoggerQuery PlajaLogger::Info(std::string message, char valueHighlighter, char appendSeparator)
 {
-    return { PlajaLogLevel::Info, message, appendSeparator };
+    return { PlajaLogLevel::Info, std::move(message), valueHighlighter, appendSeparator };
 }
 
-PlajaLogger::PlajaLoggerQuery PlajaLogger::Warning(const std::string& message, char appendSeparator)
+PlajaLogger::PlajaLoggerQuery PlajaLogger::Warning(std::string message, char valueHighlighter, char appendSeparator)
 {
-    return { PlajaLogLevel::Warning, message, appendSeparator };
+    return { PlajaLogLevel::Warning, std::move(message), valueHighlighter, appendSeparator };
 }
 
-PlajaLogger::PlajaLoggerQuery PlajaLogger::Error(const std::string& message, char appendSeparator)
+PlajaLogger::PlajaLoggerQuery PlajaLogger::Error(std::string message, char valueHighlighter, char appendSeparator)
 {
-    return { PlajaLogLevel::Error, message, appendSeparator };
+    return { PlajaLogLevel::Error, std::move(message), valueHighlighter, appendSeparator };
 }
