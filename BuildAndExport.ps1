@@ -1,39 +1,62 @@
 $ErrorActionPreference = "Stop"
 
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$BuildDir = Join-Path $ScriptDir "build"
+$WindowsExportDir = Join-Path $BuildDir "WindowsExport"
+$LinuxExportDir = Join-Path $BuildDir "LinuxExport"
+
 # ensure build folder exists
-if (-not (Test-Path "build")) {
-    New-Item -ItemType Directory -Path "build" | Out-Null
-}
+New-Item -ItemType Directory -Force -Path $BuildDir | Out-Null
 
 # cleanup build content except exports
-Get-ChildItem -Path "build" | Where-Object {
+Get-ChildItem -Path $BuildDir | Where-Object {
     $_.Name -ne "WindowsExport" -and $_.Name -ne "LinuxExport"
 } | Remove-Item -Recurse -Force
 
-# build
-cmake -S . -B build
-cmake --build build
+# configure once
+cmake -S $ScriptDir -B $BuildDir
 
-# export
-New-Item -ItemType Directory -Force -Path "build/WindowsExport" | Out-Null
+# build both configs
+cmake --build $BuildDir --config Debug
+cmake --build $BuildDir --config Release
 
-Copy-Item "PlajaLogger.h" "build/WindowsExport/" -Force
-
-$filesToCopy = Get-ChildItem -Path "build" -Recurse -File | Where-Object {
-    $_.FullName -notlike "*\WindowsExport\*" -and
-    $_.FullName -notlike "*\LinuxExport\*" -and
-    ($_.Extension -eq ".dll" -or $_.Extension -eq ".lib")
+# recreate export dirs
+if (Test-Path $WindowsExportDir) {
+    Remove-Item $WindowsExportDir -Recurse -Force
 }
 
-foreach ($file in $filesToCopy) {
-    Copy-Item $file.FullName "build/WindowsExport/" -Force
+New-Item -ItemType Directory -Force -Path $WindowsExportDir | Out-Null
+New-Item -ItemType Directory -Force -Path (Join-Path $WindowsExportDir "Debug") | Out-Null
+New-Item -ItemType Directory -Force -Path (Join-Path $WindowsExportDir "Release") | Out-Null
+
+# copy header
+Copy-Item (Join-Path $ScriptDir "PlajaLogger.h") $WindowsExportDir -Force
+
+# copy Debug artifacts
+$DebugDir = Join-Path $BuildDir "Debug"
+if (Test-Path $DebugDir) {
+    Get-ChildItem -Path $DebugDir -File | Where-Object {
+        $_.Extension -eq ".dll" -or $_.Extension -eq ".lib"
+    } | ForEach-Object {
+        Copy-Item $_.FullName (Join-Path $WindowsExportDir "Debug") -Force
+    }
 }
 
-# cleanup build content except exports again
-Get-ChildItem -Path "build" | Where-Object {
+# copy Release artifacts
+$ReleaseDir = Join-Path $BuildDir "Release"
+if (Test-Path $ReleaseDir) {
+    Get-ChildItem -Path $ReleaseDir -File | Where-Object {
+        $_.Extension -eq ".dll" -or $_.Extension -eq ".lib"
+    } | ForEach-Object {
+        Copy-Item $_.FullName (Join-Path $WindowsExportDir "Release") -Force
+    }
+}
+
+# cleanup build content except exports
+Get-ChildItem -Path $BuildDir | Where-Object {
     $_.Name -ne "WindowsExport" -and $_.Name -ne "LinuxExport"
 } | Remove-Item -Recurse -Force
 
 Write-Host "DONE"
 Write-Host "Output:"
-Get-ChildItem "build/WindowsExport"
+Get-ChildItem $WindowsExportDir -Recurse

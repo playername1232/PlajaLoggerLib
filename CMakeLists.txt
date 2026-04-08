@@ -11,3 +11,7 @@ target_compile_definitions(plaja_logger PRIVATE PLAJA_LOGGER_EXPORTS)
 
 target_include_directories(plaja_logger PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR})
+
+set_target_properties(plaja_logger PROPERTIES
+        OUTPUT_NAME "plaja_logger"
+)
