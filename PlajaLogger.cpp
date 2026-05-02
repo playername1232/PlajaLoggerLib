@@ -39,7 +39,7 @@ namespace
 
 // PlajaLoggerQuery
 
-PlajaLogger::PlajaLoggerQuery::PlajaLoggerQuery(PlajaLogLevel logLevel, std::string message, const char valueHighlighter, const char appendSeparator)
+PlajaLogger::PlajaLoggerQuery::PlajaLoggerQuery(const PlajaLogLevel logLevel, std::string message, const char valueHighlighter, const char appendSeparator)
 {
     _logLevel = logLevel;
     _message = std::move(message);
@@ -59,12 +59,16 @@ const char* PlajaLogger::PlajaLoggerQuery::GetLogLevelText(PlajaLogLevel logLeve
             return "WARNING";
         case PlajaLogLevel::Error:
             return "ERROR";
+        case PlajaLogLevel::Success:
+            return "SUCCESS";
+        case PlajaLogLevel::Fail:
+            return "FAIL";
         default:
             return "UNKNOWN";
     }
 }
 
-PlajaLogger::PlajaColor PlajaLogger::PlajaLoggerQuery::GetLogLevelColor(PlajaLogLevel logLevel)
+PlajaLogger::PlajaColor PlajaLogger::PlajaLoggerQuery::GetLogLevelColor(const PlajaLogLevel logLevel)
 {
     switch (logLevel)
     {
@@ -76,6 +80,10 @@ PlajaLogger::PlajaColor PlajaLogger::PlajaLoggerQuery::GetLogLevelColor(PlajaLog
             return PlajaLogColors::Warning;
         case PlajaLogLevel::Error:
             return PlajaLogColors::Error;
+        case PlajaLogLevel::Success:
+            return PlajaLogColors::Success;
+        case PlajaLogLevel::Fail:
+            return PlajaLogColors::Fail;
         default:
             return PlajaColor::Default;
     }
@@ -155,7 +163,7 @@ void PlajaLogger::PlajaLoggerQuery::ApplyColor(PlajaColor color)
 #endif
 }
 
-void PlajaLogger::PlajaLoggerQuery::PrintColored(PlajaColor color, const std::string& text, bool canUseColors)
+void PlajaLogger::PlajaLoggerQuery::PrintColored(const PlajaColor color, const std::string& text, bool canUseColors)
 {
     if (canUseColors)
     {
@@ -166,7 +174,7 @@ void PlajaLogger::PlajaLoggerQuery::PrintColored(PlajaColor color, const std::st
     std::cout.flush();
 }
 
-char PlajaLogger::PlajaLoggerQuery::ExtractHighlighter(char highlighterOverride) const
+char PlajaLogger::PlajaLoggerQuery::ExtractHighlighter(const char highlighterOverride) const
 {
     return highlighterOverride != '\0' ? highlighterOverride : _valueHighlighter;
 }
@@ -226,7 +234,6 @@ void PlajaLogger::PlajaLoggerQuery::Write()
 }
 
 // PlajaLogger
-
 PlajaLogger::PlajaLoggerQuery PlajaLogger::Debug(std::string message, char valueHighlighter, char appendSeparator)
 {
     return { PlajaLogLevel::Debug, std::move(message), valueHighlighter, appendSeparator };
@@ -245,4 +252,14 @@ PlajaLogger::PlajaLoggerQuery PlajaLogger::Warning(std::string message, char val
 PlajaLogger::PlajaLoggerQuery PlajaLogger::Error(std::string message, char valueHighlighter, char appendSeparator)
 {
     return { PlajaLogLevel::Error, std::move(message), valueHighlighter, appendSeparator };
+}
+
+PlajaLogger::PlajaLoggerQuery PlajaLogger::Success(std::string message, char valueHighlighter, char appendSeparator)
+{
+    return { PlajaLogLevel::Success, std::move(message), valueHighlighter, appendSeparator };
+}
+
+PlajaLogger::PlajaLoggerQuery PlajaLogger::Fail(std::string message, char valueHighlighter, char appendSeparator)
+{
+    return { PlajaLogLevel::Fail, std::move(message), valueHighlighter, appendSeparator };
 }

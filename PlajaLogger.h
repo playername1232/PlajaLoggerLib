@@ -21,7 +21,9 @@ enum class PlajaLogLevel
     Debug   = 0,
     Info    = 1,
     Warning = 2,
-    Error   = 3
+    Error   = 3,
+    Success = 4,
+    Fail    = 5,
 };
 
 class PlajaLogger
@@ -41,16 +43,18 @@ private:
 
     struct PlajaLogColors
     {
-        static constexpr PlajaColor Info      = PlajaColor::LightBlue;
-        static constexpr PlajaColor Debug     = PlajaColor::Blue;
-        static constexpr PlajaColor Warning   = PlajaColor::Yellow;
-        static constexpr PlajaColor Error     = PlajaColor::Red;
+        static constexpr PlajaColor Info        = PlajaColor::LightBlue;
+        static constexpr PlajaColor Debug       = PlajaColor::Blue;
+        static constexpr PlajaColor Warning     = PlajaColor::Yellow;
+        static constexpr PlajaColor Error       = PlajaColor::Red;
+        static constexpr PlajaColor Success     = PlajaColor::Green;
+        static constexpr PlajaColor Fail        = PlajaColor::Red;
 
-        static constexpr PlajaColor Timestamp = PlajaColor::Gray;
-        static constexpr PlajaColor Key       = PlajaColor::Green;
-        static constexpr PlajaColor Value     = PlajaColor::White;
-        static constexpr PlajaColor Separator = PlajaColor::Gray;
-        static constexpr PlajaColor Message   = PlajaColor::Default;
+        static constexpr PlajaColor Timestamp   = PlajaColor::Gray;
+        static constexpr PlajaColor Key         = PlajaColor::Green;
+        static constexpr PlajaColor Value       = PlajaColor::White;
+        static constexpr PlajaColor Separator   = PlajaColor::Gray;
+        static constexpr PlajaColor Message     = PlajaColor::Default;
     };
 
 public:
@@ -123,37 +127,61 @@ public:
      * Creates a debug-level log query.
      *
      * @param message The message associated with the log entry.
+     * @param valueHighlighter Character used to enclose appended values (e.g. '"' -> key="value"). '\0' disables it.
      * @param appendSeparator The separator used between appended key-value pairs.
      * @return A log query that can be extended and later written using Write().
      */
-    PLAJA_LOGGER_API static PlajaLoggerQuery Debug(std::string message, char valueHighlighter = '\0', char appendSeparator = '|');
+    [[nodiscard]] PLAJA_LOGGER_API static PlajaLoggerQuery Debug(std::string message, char valueHighlighter = '\0', char appendSeparator = '|');
 
     /**
      * Creates a info-level log query.
      *
      * @param message The message associated with the log entry.
+     * @param valueHighlighter Character used to enclose appended values (e.g. '"' -> key="value"). '\0' disables it.
      * @param appendSeparator The separator used between appended key-value pairs.
      * @return A log query that can be extended and later written using Write().
      */
-    PLAJA_LOGGER_API static PlajaLoggerQuery Info(std::string message, char valueHighlighter = '\0', char appendSeparator = '|');
+    [[nodiscard]] PLAJA_LOGGER_API static PlajaLoggerQuery Info(std::string message, char valueHighlighter = '\0', char appendSeparator = '|');
 
     /**
      * Creates a warning-level log query.
      *
      * @param message The message associated with the log entry.
+     * @param valueHighlighter Character used to enclose appended values (e.g. '"' -> key="value"). '\0' disables it.
      * @param appendSeparator The separator used between appended key-value pairs.
      * @return A log query that can be extended and later written using Write().
      */
-    PLAJA_LOGGER_API static PlajaLoggerQuery Warning(std::string message, char valueHighlighter = '\0', char appendSeparator = '|');
+    [[nodiscard]] PLAJA_LOGGER_API static PlajaLoggerQuery Warning(std::string message, char valueHighlighter = '\0', char appendSeparator = '|');
 
     /**
      * Creates a error-level log query.
      *
      * @param message The message associated with the log entry.
+     * @param valueHighlighter Character used to enclose appended values (e.g. '"' -> key="value"). '\0' disables it.
      * @param appendSeparator The separator used between appended key-value pairs.
      * @return A log query that can be extended and later written using Write().
      */
-    PLAJA_LOGGER_API static PlajaLoggerQuery Error(std::string message, char valueHighlighter = '\0', char appendSeparator = '|');
+    [[nodiscard]] PLAJA_LOGGER_API static PlajaLoggerQuery Error(std::string message, char valueHighlighter = '\0', char appendSeparator = '|');
+
+    /**
+     * Creates a success-level log query. Represents an operation / test was successful.
+     *
+     * @param message The message associated with the log entry.
+     * @param valueHighlighter Character used to enclose appended values (e.g. '"' -> key="value"). '\0' disables it.
+     * @param appendSeparator The separator used between appended key-value pairs.
+     * @return A log query that can be extended and later written using Write().
+     */
+    [[nodiscard]] PLAJA_LOGGER_API static PlajaLoggerQuery Success(std::string message, char valueHighlighter = '\0', char appendSeparator = '|');
+
+    /**
+     * Creates a fail-level log query. Represents an operation / test has failed.
+     *
+     * @param message The message associated with the log entry.
+     * @param valueHighlighter Character used to enclose appended values (e.g. '"' -> key="value"). '\0' disables it.
+     * @param appendSeparator The separator used between appended key-value pairs.
+     * @return A log query that can be extended and later written using Write().
+     */
+    [[nodiscard]] PLAJA_LOGGER_API static PlajaLoggerQuery Fail(std::string message, char valueHighlighter = '\0', char appendSeparator = '|');
 };
 
 #endif
